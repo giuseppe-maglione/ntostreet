@@ -3,7 +3,7 @@
 
 #include <winternl.h>
 #include <windows.h>
-#include "ntdll_def.h"
+#include "native.h"
 
 #define SYSCALL_SSN_DIST  0x4
 #define SYSCALL_INST_DIST 0x12

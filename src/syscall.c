@@ -40,6 +40,7 @@ PVOID get_module_base_by_hash(DWORD module_hash) {
 
 FARPROC get_api_by_hash(HMODULE hModule, DWORD api_hash) {
 
+    PBYTE pbyte = (PBYTE)hModule;       // pointer to byte (for arithmetic)
     PIMAGE_DOS_HEADER pdos;             // pointer to DOS header
     PIMAGE_NT_HEADERS pnth;             // pointer to NT header
     IMAGE_DATA_DIRECTORY dir;           // export directory data
@@ -49,29 +50,29 @@ FARPROC get_api_by_hash(HMODULE hModule, DWORD api_hash) {
     PDWORD aofunctions;                 // array of function addresses
 
 
-    pdos = (PIMAGE_DOS_HEADER)hModule;
+    pdos = (PIMAGE_DOS_HEADER)pbyte;
     if (pdos->e_magic != IMAGE_DOS_SIGNATURE) return NULL;
 
-    pnth = (PIMAGE_NT_HEADERS)(pdos + pdos->e_lfanew);
+    pnth = (PIMAGE_NT_HEADERS)(pbyte + pdos->e_lfanew);
     if (pnth->Signature != IMAGE_NT_SIGNATURE) return NULL;
 
     // get EAT address
     dir = pnth->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
     if (dir.Size == 0) return NULL;
 
-    expdir = (PIMAGE_EXPORT_DIRECTORY)(pdos + dir.VirtualAddress);
+    expdir = (PIMAGE_EXPORT_DIRECTORY)(pbyte + dir.VirtualAddress);
 
-    aonames = (PDWORD)(pdos + expdir->AddressOfNames);
-    aoordinals = (PWORD)(pdos + expdir->AddressOfNameOrdinals);
-    aofunctions = (PDWORD)(pdos + expdir->AddressOfFunctions);
+    aonames = (PDWORD)(pbyte + expdir->AddressOfNames);
+    aoordinals = (PWORD)(pbyte + expdir->AddressOfNameOrdinals);
+    aofunctions = (PDWORD)(pbyte + expdir->AddressOfFunctions);
 
     for (DWORD i = 0; i < expdir->NumberOfNames; i++) {
-        char* func_name = (char*)(pdos + aonames[i]);        
+        char* func_name = (char*)(pbyte + aonames[i]);        
         DWORD func_hash = djb2_hash(func_name);
 
         if (func_hash == api_hash) {
             WORD ordinal = aoordinals[i];
-            FARPROC func_addr = (FARPROC)(pdos + aofunctions[ordinal]);
+            FARPROC func_addr = (FARPROC)(pbyte + aofunctions[ordinal]);
             return func_addr;
         }
     }

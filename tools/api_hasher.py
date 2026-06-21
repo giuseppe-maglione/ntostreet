@@ -18,7 +18,7 @@ def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
     input_path = os.path.join(base_dir, "..", "rsrc", "ntdll_api.txt")
-    output_path = os.path.join(base_dir, "..", "src", "ntdll_def.h")
+    output_path = os.path.join(base_dir, "..", "src", "native.h")
 
     with open(input_path, "r") as f:
         names = [line.strip() for line in f if line.strip()]

